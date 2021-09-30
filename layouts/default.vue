@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app flat>
+    <v-app-bar app elevate-on-scroll color="white">
       <v-toolbar-title>Fluxo Ágil</v-toolbar-title>
       <v-spacer />
 
@@ -12,7 +12,5 @@
         <Nuxt />
       </v-container>
     </v-main>
-
-    <v-footer app> Footer </v-footer>
   </v-app>
 </template>
