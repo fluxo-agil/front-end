@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div class="text-h5 text-center py-8">Como utilizar</div>
+    <div class="text-h5 text-center font-weight-bold py-8">Como utilizar</div>
 
     <v-row>
       <v-col v-for="item in items" :key="item.title" cols="12" md="4">
-        <div class="text-h6 text-center pb-4">
+        <div class="text-h6 text-left text-md-center pb-4">
           {{ item.title }}
         </div>
 
