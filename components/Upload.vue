@@ -9,24 +9,36 @@
         <DocumentIcon class="mb-4" />
 
         <div class="mb-4">
-          Arraste seu
-          <span class="font-weight-bold">Histórico Escolar</span>
-          ou
+          <template v-if="selectedFile">
+            <span>{{ fileName }}</span>
+
+            <v-btn icon small @click="deleteFile">
+              <v-icon dense>mdi-close</v-icon>
+            </v-btn>
+          </template>
+
+          <template v-else>
+            Arraste seu
+            <span class="font-weight-bold">Histórico Escolar</span>
+            ou
+          </template>
         </div>
 
         <v-btn
-          rounded
-          :depressed="selectedFile"
-          :outlined="!selectedFile"
           color="primary"
-          max-width="100%"
+          class="mb-4"
+          rounded
+          :depressed="Boolean(selectedFile)"
+          :outlined="Boolean(!selectedFile)"
+          :loading="isLoading"
+          width="135px"
           @click="onButtonClick"
         >
-          <span v-if="selectedFile">Enviar&nbsp;</span>
+          <span>{{ buttonText }}</span>
 
-          <span class="file__name">{{ buttonText }}</span>
-
-          <v-icon v-if="selectedFile" class="ml-2">mdi-cloud-upload</v-icon>
+          <v-icon v-if="selectedFile" class="ml-2" dense>
+            mdi-cloud-upload
+          </v-icon>
         </v-btn>
 
         <input
@@ -36,6 +48,8 @@
           accept="application/pdf"
           @change="onFileChanged"
         />
+
+        <div v-if="selectedFile" class="mb-4"></div>
       </v-card>
     </v-col>
   </v-row>
@@ -52,29 +66,46 @@ export default {
   data() {
     return {
       selectedFile: null,
-      preco: 50,
-      defaultButtonText: "Selecione",
+      isLoading: false,
     };
   },
 
   computed: {
     buttonText() {
-      return this.selectedFile
-        ? this.selectedFile.name
-        : this.defaultButtonText;
+      return this.selectedFile ? "Enviar" : "Selecionar";
     },
     buttonColor() {
       return this.selectedFile && "primary";
+    },
+    fileName() {
+      return this.selectedFile ? this.selectedFile.name : "";
+    },
+  },
+
+  watch: {
+    selectedFile(file) {
+      if (this.isLoading && !file) {
+        this.isLoading = false;
+      }
     },
   },
 
   methods: {
     onButtonClick() {
+      if (this.selectedFile) {
+        this.isLoading = true;
+        return;
+      }
+
       this.$refs.uploader.click();
     },
 
     onFileChanged(event) {
       this.selectedFile = event.target.files[0];
+    },
+
+    deleteFile() {
+      this.selectedFile = null;
     },
   },
 };
