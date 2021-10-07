@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Upload />
+    <Stepper />
     <Guide />
   </div>
 </template>

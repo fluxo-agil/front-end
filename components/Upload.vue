@@ -1,58 +1,51 @@
 <template>
-  <v-row justify="center" align="center">
-    <v-col>
-      <v-card
-        class="pa-4 d-flex flex-column align-center justify-center"
-        min-height="50vh"
-        outlined
-        :loading="isLoading"
-      >
-        <DocumentIcon class="mb-4" />
+  <v-card
+    class="pa-4 d-flex flex-column align-center justify-center"
+    :loading="isLoading"
+    min-height="50vh"
+  >
+    <DocumentIcon class="mb-4" />
 
-        <div class="mb-4">
-          <template v-if="selectedFile">
-            <span>{{ fileName }}</span>
+    <div class="mb-4">
+      <template v-if="selectedFile">
+        <span>{{ fileName }}</span>
 
-            <v-btn :disabled="isLoading" icon small @click="deleteFile">
-              <v-icon dense>mdi-close</v-icon>
-            </v-btn>
-          </template>
-
-          <template v-else>
-            Arraste seu
-            <span class="font-weight-bold">Histórico Escolar</span>
-            ou
-          </template>
-        </div>
-
-        <v-btn
-          color="primary"
-          class="mb-4"
-          rounded
-          :depressed="Boolean(selectedFile)"
-          :outlined="Boolean(!selectedFile)"
-          :loading="isLoading"
-          @click="onButtonClick"
-        >
-          <span>{{ buttonText }}</span>
-
-          <v-icon v-if="selectedFile" class="ml-2" dense>
-            mdi-cloud-upload
-          </v-icon>
+        <v-btn :disabled="isLoading" icon small @click="deleteFile">
+          <v-icon dense>mdi-close</v-icon>
         </v-btn>
+      </template>
 
-        <input
-          ref="uploader"
-          class="d-none"
-          type="file"
-          accept="application/pdf"
-          @change="onFileChanged"
-        />
+      <template v-else>
+        Arraste seu
+        <span class="font-weight-bold">Histórico Escolar</span>
+        ou
+      </template>
+    </div>
 
-        <div v-if="selectedFile" class="mb-4"></div>
-      </v-card>
-    </v-col>
-  </v-row>
+    <v-btn
+      color="primary"
+      class="mb-4"
+      rounded
+      :depressed="Boolean(selectedFile)"
+      :outlined="Boolean(!selectedFile)"
+      :loading="isLoading"
+      @click="onButtonClick"
+    >
+      <span>{{ buttonText }}</span>
+
+      <v-icon v-if="selectedFile" class="ml-2" dense> mdi-cloud-upload </v-icon>
+    </v-btn>
+
+    <input
+      ref="uploader"
+      class="d-none"
+      type="file"
+      accept="application/pdf"
+      @change="onFileChanged"
+    />
+
+    <div v-if="selectedFile" class="mb-4"></div>
+  </v-card>
 </template>
 
 <script>
@@ -115,7 +108,10 @@ export default {
         "getRecommendation",
         this.selectedFile
       );
-      console.log(response.data);
+
+      if (response.status === 200) {
+        this.$emit("update-recommendation", response.data);
+      }
 
       this.isLoading = false;
     },
