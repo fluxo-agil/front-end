@@ -5,6 +5,7 @@
         class="pa-4 d-flex flex-column align-center justify-center"
         min-height="50vh"
         outlined
+        :loading="isLoading"
       >
         <DocumentIcon class="mb-4" />
 
@@ -12,7 +13,7 @@
           <template v-if="selectedFile">
             <span>{{ fileName }}</span>
 
-            <v-btn icon small @click="deleteFile">
+            <v-btn :disabled="isLoading" icon small @click="deleteFile">
               <v-icon dense>mdi-close</v-icon>
             </v-btn>
           </template>
@@ -31,7 +32,6 @@
           :depressed="Boolean(selectedFile)"
           :outlined="Boolean(!selectedFile)"
           :loading="isLoading"
-          width="135px"
           @click="onButtonClick"
         >
           <span>{{ buttonText }}</span>
@@ -72,7 +72,7 @@ export default {
 
   computed: {
     buttonText() {
-      return this.selectedFile ? "Enviar" : "Selecionar";
+      return this.selectedFile ? "Receber recomendação" : "Selecionar";
     },
     buttonColor() {
       return this.selectedFile && "primary";
@@ -91,9 +91,9 @@ export default {
   },
 
   methods: {
-    onButtonClick() {
+    async onButtonClick() {
       if (this.selectedFile) {
-        this.isLoading = true;
+        await this.getRecommendation();
         return;
       }
 
@@ -106,6 +106,18 @@ export default {
 
     deleteFile() {
       this.selectedFile = null;
+    },
+
+    async getRecommendation() {
+      this.isLoading = true;
+
+      const response = await this.$store.dispatch(
+        "getRecommendation",
+        this.selectedFile
+      );
+      console.log(response.data);
+
+      this.isLoading = false;
     },
   },
 };
