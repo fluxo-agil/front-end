@@ -1,24 +1,33 @@
 <template>
   <v-card
     class="pa-4 d-flex flex-column align-center justify-center"
-    :loading="isLoading"
     min-height="50vh"
   >
     <DocumentIcon class="mb-4" />
 
     <div class="mb-4">
       <template v-if="selectedFile">
-        <span>{{ fileName }}</span>
+        <div class="d-flex justify-center align-center">
+          <span>{{ fileName }}</span>
 
-        <v-btn :disabled="isLoading" icon small @click="deleteFile">
-          <v-icon dense>mdi-close</v-icon>
-        </v-btn>
+          <v-btn :disabled="isLoading" icon small @click="deleteFile">
+            <v-icon dense>mdi-close</v-icon>
+          </v-btn>
+        </div>
+
+        <v-text-field
+          v-model="maxCreditsByPeriod"
+          class="shrink mt-6 mb-3"
+          hide-details
+          type="number"
+          outlined
+          label="Créditos por semestre"
+        />
       </template>
 
       <template v-else>
-        Arraste seu
+        Selecione seu
         <span class="font-weight-bold">Histórico Escolar</span>
-        ou
       </template>
     </div>
 
@@ -28,12 +37,14 @@
       rounded
       :depressed="Boolean(selectedFile)"
       :outlined="Boolean(!selectedFile)"
-      :loading="isLoading"
+      :disabled="isLoading"
       @click="onButtonClick"
     >
       <span>{{ buttonText }}</span>
 
-      <v-icon v-if="selectedFile" class="ml-2" dense> mdi-cloud-upload </v-icon>
+      <v-icon v-if="selectedFile && !isLoading" class="ml-2" dense>
+        mdi-cloud-upload
+      </v-icon>
     </v-btn>
 
     <input
@@ -44,7 +55,15 @@
       @change="onFileChanged"
     />
 
-    <div v-if="selectedFile" class="mb-4"></div>
+    <div v-if="isLoading" class="mb-4">
+      <v-progress-circular
+        slot="loader"
+        size="32"
+        :rotate="180"
+        :value="loadingTime"
+        color="primary"
+      />
+    </div>
   </v-card>
 </template>
 
@@ -59,13 +78,23 @@ export default {
   data() {
     return {
       selectedFile: null,
+      maxCreditsByPeriod: 24,
       isLoading: false,
+      loadingTime: 0,
+      interval: {},
     };
   },
 
   computed: {
     buttonText() {
-      return this.selectedFile ? "Receber recomendação" : "Selecionar";
+      if (!this.selectedFile) {
+        return "Selecionar";
+      }
+      if (this.isLoading) {
+        return "Processando...";
+      }
+
+      return "Receber recomendação";
     },
     buttonColor() {
       return this.selectedFile && "primary";
@@ -103,11 +132,17 @@ export default {
 
     async getRecommendation() {
       this.isLoading = true;
+      this.interval = setInterval(() => {
+        if (this.loadingTime === 100) {
+          return (this.loadingTime = 0);
+        }
+        this.loadingTime += 10;
+      }, 1000);
 
-      const response = await this.$store.dispatch(
-        "getRecommendation",
-        this.selectedFile
-      );
+      const response = await this.$store.dispatch("getRecommendation", {
+        file: this.selectedFile,
+        maxCreditsByPeriod: this.maxCreditsByPeriod,
+      });
 
       if (response.status === 200) {
         this.$emit("update-recommendation", response.data);

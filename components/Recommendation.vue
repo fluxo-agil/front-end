@@ -1,9 +1,9 @@
 <template>
   <div>
     <div class="text-h5" outlined>
-      Cursando
-      <strong>{{ recommendation.credits_by_period }} créditos</strong> em cada,
-      serão necessários
+      Cursando até
+      <strong>{{ recommendation.max_credits_by_period }} créditos</strong> em
+      cada, serão necessários
       <strong>{{ recommendation.periods_to_graduate }} semestres</strong> para
       você se formar.
     </div>
