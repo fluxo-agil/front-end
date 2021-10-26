@@ -91,17 +91,17 @@
             <v-row>
               <v-col class="col-12 text-center">
                 Selecione seu
-                <span class="font-weight-bold">Histórico Escolar</span>
+                <span class="font-weight-bold">histórico escolar</span>
               </v-col>
             </v-row>
           </template>
 
           <v-row class="mt-4">
-            <v-col class="col-sm-12">
+            <v-col class="col-sm-12 d-flex justify-center">
               <v-btn
                 color="primary"
                 rounded
-                block
+                :block="Boolean(selectedFile)"
                 :depressed="Boolean(selectedFile)"
                 :outlined="Boolean(!selectedFile)"
                 :disabled="isLoading"

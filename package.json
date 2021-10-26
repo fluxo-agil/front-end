@@ -16,6 +16,7 @@
     "*.{js,vue}": "eslint"
   },
   "dependencies": {
+    "@hipsjs/flowy-vue": "^1.0.13",
     "@nuxtjs/axios": "^5.13.6",
     "core-js": "^3.15.1",
     "nuxt": "^2.15.7",
