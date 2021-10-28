@@ -1,5 +1,5 @@
 <template>
-  <v-stepper v-model="stepper" outlined min-height="50vh">
+  <v-stepper v-model="stepper" outlined>
     <v-stepper-content class="pa-1" step="1">
       <Upload @update-recommendation="updateRecommendation" />
     </v-stepper-content>
