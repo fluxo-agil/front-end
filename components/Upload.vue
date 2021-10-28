@@ -1,64 +1,79 @@
 <template>
-  <v-card
-    class="pa-0 d-flex flex-column align-center justify-center"
-    min-height="600px"
-  >
-    <v-container fluid>
+  <v-card class="d-flex flex-column" min-height="700px" :loading="isLoading">
+    <v-container class="flex-grow-1 d-flex align-center" fluid>
       <v-row>
         <v-col
           class="d-flex flex-column justify-center"
           cols="12"
-          :md="selectedFile ? 4 : 12"
+          :lg="selectedFile ? 4 : 12"
         >
           <v-row class="shrink" justify="center">
-            <DocumentIcon />
+            <v-col class="text-center">
+              <DocumentIcon />
+            </v-col>
           </v-row>
 
           <v-row v-if="selectedFile" class="shrink">
-            <v-col>
-              <div class="d-flex justify-center align-center">
-                <span class="text-body-1">{{ fileName }}</span>
+            <v-col class="d-flex justify-center align-center">
+              <span class="text-body-1">{{ fileName }}</span>
 
-                <v-btn
-                  class="ml-1"
-                  :disabled="isLoading"
-                  icon
-                  small
-                  @click="deleteFile"
-                >
-                  <v-icon dense>mdi-close</v-icon>
-                </v-btn>
-              </div>
+              <v-btn
+                class="ml-1"
+                :disabled="isLoading"
+                icon
+                small
+                @click="deleteFile"
+              >
+                <v-icon dense>mdi-close</v-icon>
+              </v-btn>
             </v-col>
           </v-row>
 
           <v-row v-else justify="center">
-            <v-col class="col-12 text-center">
-              Selecione seu
-              <span class="font-weight-bold">histórico escolar</span>
+            <v-col class="text-center" cols="12">
+              <div>
+                Selecione seu
+                <span class="font-weight-bold">Histórico Escolar</span>
+              </div>
+            </v-col>
+
+            <v-col class="text-center" cols="12">
+              <v-btn color="primary" rounded outlined @click="uploadFile">
+                <span>Selecionar</span>
+
+                <v-icon v-if="selectedFile && !isLoading" class="ml-2" dense>
+                  mdi-cloud-upload
+                </v-icon>
+              </v-btn>
+
+              <input
+                ref="uploader"
+                class="d-none"
+                type="file"
+                accept="application/pdf"
+                @change="onFileChanged"
+              />
             </v-col>
           </v-row>
         </v-col>
 
         <template v-if="selectedFile">
-          <v-col cols="12" :md="selectedFile ? 4 : 12">
+          <v-col cols="12" :lg="selectedFile ? 4 : 12">
             <v-row>
-              <v-col>
-                <div class="text-body-1 grey--text text--darken-1 px-0">
+              <v-col cols="12">
+                <div class="text-body-1 grey--text text--darken-1">
                   Quantos créditos deseja cursar em cada semestre?
                 </div>
               </v-col>
-            </v-row>
 
-            <v-row>
-              <v-col>
+              <v-col cols="12">
                 <v-slider
                   v-model="maxCreditsByPeriod"
                   ticks
                   :thumb-size="24"
                   hide-details
                   thumb-label="always"
-                  min="6"
+                  min="12"
                   max="32"
                 />
               </v-col>
@@ -66,17 +81,11 @@
 
             <v-row>
               <v-col cols="12">
-                <v-row>
-                  <v-col cols="12" class="pb-0">
-                    <div class="text-body-1 grey--text text--darken-1 px-0">
-                      Quais disciplinas optativas gostaria de cursar?
-                    </div>
-                  </v-col>
-                </v-row>
+                <div class="text-body-1 grey--text text--darken-1">
+                  Quais disciplinas optativas gostaria de cursar?
+                </div>
               </v-col>
-            </v-row>
 
-            <v-row>
               <v-col cols="12">
                 <v-autocomplete
                   v-model="optionalCourses.selected"
@@ -100,54 +109,74 @@
               </v-col>
             </v-row>
 
-            <v-row>
-              <v-col class="pb-0">
-                <div class="text-body-1 grey--text text--darken-1 px-0">
-                  Quer especificar em qual semestre cursar (ou não) uma
-                  disciplina?
-                </div>
-              </v-col>
+            <v-form
+              ref="coursesWithSpecificPeriodForm"
+              v-model="coursesWithSpecificPeriod.input.isValid"
+            >
+              <v-row>
+                <v-col class="pb-0">
+                  <div class="text-body-1 grey--text text--darken-1 px-0">
+                    Quer especificar em qual semestre cursar (ou não) uma
+                    disciplina?
+                  </div>
+                </v-col>
 
-              <v-col class="col-12 col-md-12 pt-0">
-                <v-select
-                  v-model="coursesWithSpecificPeriod.input.selected.will"
-                  :items="coursesWithSpecificPeriod.input.items.will"
-                  suffix="cursar"
-                  hide-details
-                />
-              </v-col>
+                <v-col class="col-12 col-md-12 pt-0">
+                  <v-select
+                    v-model="coursesWithSpecificPeriod.input.selected.will"
+                    :items="coursesWithSpecificPeriod.input.items.will"
+                    :rules="coursesWithSpecificPeriod.input.rules.will"
+                    required
+                    suffix="cursar"
+                  />
+                </v-col>
 
-              <v-col class="col-12 col-md-12">
-                <v-select
-                  v-model="coursesWithSpecificPeriod.input.selected.course"
-                  :items="coursesToSpecifyPeriod"
-                  return-object
-                  item-text="title"
-                  prefix="a disciplina"
-                  hide-details
-                >
-                  <template #selection="{ item }">
-                    <span class="text-right text-truncate" style="width: 100%">
-                      {{ item.title }}
-                    </span>
-                  </template>
-                </v-select>
-              </v-col>
+                <v-col class="col-12 col-md-12">
+                  <v-select
+                    v-model="coursesWithSpecificPeriod.input.selected.course"
+                    :items="coursesToSpecifyPeriod"
+                    :rules="coursesWithSpecificPeriod.input.rules.course"
+                    return-object
+                    required
+                    item-text="title"
+                    prefix="a disciplina"
+                  >
+                    <template #selection="{ item }">
+                      <span
+                        class="text-right text-truncate"
+                        style="width: 100%"
+                      >
+                        {{ item.title }}
+                      </span>
+                    </template>
+                  </v-select>
+                </v-col>
 
-              <v-col class="col-12 col-md-12">
-                <v-select
-                  v-model="coursesWithSpecificPeriod.input.selected.period"
-                  :items="coursesWithSpecificPeriod.input.items.periods"
-                  suffix="semestre(s)"
-                  hide-details
-                  append-outer-icon="mdi-plus"
-                  @click:append-outer="addSpecificPeriodToCourse"
-                />
-              </v-col>
-            </v-row>
+                <v-col class="col-12 col-md-12">
+                  <v-select
+                    v-model="coursesWithSpecificPeriod.input.selected.period"
+                    :items="coursesWithSpecificPeriod.input.items.periods"
+                    :rules="coursesWithSpecificPeriod.input.rules.period"
+                    required
+                    suffix="semestre(s)"
+                  >
+                    <template #append-outer>
+                      <v-btn
+                        text
+                        small
+                        outlined
+                        @click="addSpecificPeriodToCourse"
+                      >
+                        Adicionar
+                      </v-btn>
+                    </template>
+                  </v-select>
+                </v-col>
+              </v-row>
+            </v-form>
           </v-col>
 
-          <v-col cols="12" :md="selectedFile ? 4 : 12">
+          <v-col cols="12" :lg="selectedFile ? 4 : 12">
             <v-list two-line>
               <v-list-item
                 v-for="(
@@ -176,35 +205,21 @@
           </v-col>
         </template>
       </v-row>
-
-      <v-row justify="center">
-        <v-col class="d-flex justify-center" cols="4">
-          <v-btn
-            color="primary"
-            rounded
-            :block="Boolean(selectedFile)"
-            :depressed="Boolean(selectedFile)"
-            :outlined="Boolean(!selectedFile)"
-            :disabled="isLoading"
-            @click="onButtonClick"
-          >
-            <span>{{ buttonText }}</span>
-
-            <v-icon v-if="selectedFile && !isLoading" class="ml-2" dense>
-              mdi-cloud-upload
-            </v-icon>
-          </v-btn>
-
-          <input
-            ref="uploader"
-            class="d-none"
-            type="file"
-            accept="application/pdf"
-            @change="onFileChanged"
-          />
-        </v-col>
-      </v-row>
     </v-container>
+    <v-card-actions v-if="selectedFile">
+      <v-spacer />
+      <v-btn
+        color="primary"
+        :disabled="isLoading"
+        min-width="250px"
+        depressed
+        @click="getRecommendation"
+      >
+        <span>{{ buttonText }}</span>
+
+        <v-icon v-if="!isLoading" class="ml-2" dense> mdi-cloud-upload </v-icon>
+      </v-btn>
+    </v-card-actions>
   </v-card>
 </template>
 
@@ -219,7 +234,7 @@ export default {
 
   data() {
     return {
-      selectedFile: true,
+      selectedFile: null,
       maxCreditsByPeriod: 24,
       optionalCourses: {
         items: optionalCourses,
@@ -237,6 +252,12 @@ export default {
             course: null,
             period: null,
           },
+          rules: {
+            will: [(v) => !!v || "Obrigatório"],
+            course: [(v) => !!v || "Obrigatório"],
+            period: [(v) => !!v || "Obrigatório"],
+          },
+          isValid: false,
         },
         selected: [],
       },
@@ -248,9 +269,6 @@ export default {
 
   computed: {
     buttonText() {
-      if (!this.selectedFile) {
-        return "Selecionar";
-      }
       if (this.isLoading) {
         return "Processando...";
       }
@@ -308,12 +326,7 @@ export default {
   },
 
   methods: {
-    async onButtonClick() {
-      if (this.selectedFile) {
-        await this.getRecommendation();
-        return;
-      }
-
+    uploadFile() {
       this.$refs.uploader.click();
     },
 
@@ -323,6 +336,7 @@ export default {
 
     deleteFile() {
       this.selectedFile = null;
+      this.clearCoursesWithSpecificPeriodInput();
     },
 
     async getRecommendation() {
@@ -347,14 +361,16 @@ export default {
     },
 
     clearCoursesWithSpecificPeriodInput() {
-      this.coursesWithSpecificPeriod.input.selected = {
-        will: null,
-        course: null,
-        period: null,
-      };
+      this.$refs.coursesWithSpecificPeriodForm.reset();
     },
 
     addSpecificPeriodToCourse() {
+      this.$refs.coursesWithSpecificPeriodForm.validate();
+
+      if (!this.coursesWithSpecificPeriod.input.isValid) {
+        return;
+      }
+
       const course = this.coursesWithSpecificPeriod.input.selected;
       this.coursesWithSpecificPeriod.selected.push({ ...course });
 
