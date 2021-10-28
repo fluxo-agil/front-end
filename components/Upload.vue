@@ -126,6 +126,8 @@
                     v-model="coursesWithSpecificPeriod.input.selected.will"
                     :items="coursesWithSpecificPeriod.input.items.will"
                     :rules="coursesWithSpecificPeriod.input.rules.will"
+                    item-text="title"
+                    return-object
                     required
                     suffix="cursar"
                   />
@@ -157,6 +159,8 @@
                     v-model="coursesWithSpecificPeriod.input.selected.period"
                     :items="coursesWithSpecificPeriod.input.items.periods"
                     :rules="coursesWithSpecificPeriod.input.rules.period"
+                    item-text="title"
+                    return-object
                     required
                     suffix="semestre(s)"
                   >
@@ -190,8 +194,8 @@
                   </v-list-item-title>
 
                   <v-list-item-subtitle>
-                    {{ courseWithSpecificPeriod.will }} cursar
-                    {{ courseWithSpecificPeriod.period }} semestre.
+                    {{ courseWithSpecificPeriod.will.title }} cursar
+                    {{ courseWithSpecificPeriod.period.title }} semestre.
                   </v-list-item-subtitle>
                 </v-list-item-content>
 
@@ -244,8 +248,42 @@ export default {
       coursesWithSpecificPeriod: {
         input: {
           items: {
-            will: ["Quero", "Não quero"],
-            periods: ["no próximo", "daqui a 2", "daqui a 3"],
+            will: [
+              {
+                title: "Quero",
+                value: true,
+              },
+              {
+                title: "Não quero",
+                value: false,
+              },
+            ],
+            periods: [
+              {
+                title: "no próximo",
+                value: 0,
+              },
+              {
+                title: "daqui a 2",
+                value: 1,
+              },
+              {
+                title: "daqui a 3",
+                value: 2,
+              },
+              {
+                title: "daqui a 4",
+                value: 3,
+              },
+              {
+                title: "daqui a 5",
+                value: 4,
+              },
+              {
+                title: "daqui a 6",
+                value: 5,
+              },
+            ],
           },
           selected: {
             will: null,
@@ -253,9 +291,9 @@ export default {
             period: null,
           },
           rules: {
-            will: [(v) => !!v || "Obrigatório"],
-            course: [(v) => !!v || "Obrigatório"],
-            period: [(v) => !!v || "Obrigatório"],
+            will: [(v) => v !== null || "Obrigatório"],
+            course: [(v) => v !== null || "Obrigatório"],
+            period: [(v) => v !== null || "Obrigatório"],
           },
           isValid: false,
         },
@@ -341,6 +379,8 @@ export default {
 
     async getRecommendation() {
       this.isLoading = true;
+
+      // TODO progressive loading
       this.interval = setInterval(() => {
         if (this.loadingTime === 100) {
           return (this.loadingTime = 0);
@@ -348,10 +388,26 @@ export default {
         this.loadingTime += 10;
       }, 1000);
 
-      const response = await this.$store.dispatch("getRecommendation", {
+      const data = {
         file: this.selectedFile,
-        maxCreditsByPeriod: this.maxCreditsByPeriod,
-      });
+        max_credits_by_period: this.maxCreditsByPeriod,
+      };
+      // TODO format request
+      if (this.optionalCourses.selected.length > 0) {
+        Object.assign(data, {
+          optional_courses: this.optionalCourses.selected.map(({ id }) => id),
+        });
+      }
+
+      if (this.coursesWithSpecificPeriod.selected.length > 0) {
+        Object.assign(data, {
+          courses_with_specific_period: this.formatCoursesWithSpecificPeriod(
+            this.coursesWithSpecificPeriod
+          ),
+        });
+      }
+
+      const response = await this.$store.dispatch("getRecommendation", data);
 
       if (response.status === 200) {
         this.$emit("update-recommendation", response.data);
@@ -379,6 +435,16 @@ export default {
 
     removeSpecificPeriodToCourse(courseIndex) {
       this.coursesWithSpecificPeriod.selected.splice(courseIndex, 1);
+    },
+
+    formatCoursesWithSpecificPeriod() {
+      return this.coursesWithSpecificPeriod.selected.map(
+        ({ will, period, course }) => ({
+          take: will.value,
+          course: course.id,
+          period: period.value,
+        })
+      );
     },
   },
 };

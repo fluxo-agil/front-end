@@ -1,8 +1,10 @@
 export const actions = {
-  async getRecommendation(context, { file, maxCreditsByPeriod }) {
+  async getRecommendation(context, data) {
     const bodyFormData = new FormData();
-    bodyFormData.append("file", file);
-    bodyFormData.append("max_credits_by_period", maxCreditsByPeriod);
+
+    for (const [key, value] of Object.entries(data)) {
+      bodyFormData.append(key, value);
+    }
 
     const response = await this.$axios.post("/process", bodyFormData, {
       headers: {
