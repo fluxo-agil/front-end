@@ -5,12 +5,16 @@
   >
     <v-container fluid>
       <v-row>
-        <v-col cols="12" :md="selectedFile ? 4 : 12">
-          <v-row justify="center">
+        <v-col
+          class="d-flex flex-column justify-center"
+          cols="12"
+          :md="selectedFile ? 4 : 12"
+        >
+          <v-row class="shrink" justify="center">
             <DocumentIcon />
           </v-row>
 
-          <v-row v-if="selectedFile">
+          <v-row v-if="selectedFile" class="shrink">
             <v-col>
               <div class="d-flex justify-center align-center">
                 <span class="text-body-1">{{ fileName }}</span>
