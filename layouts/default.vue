@@ -1,10 +1,10 @@
 <template>
   <v-app>
-    <v-app-bar app elevate-on-scroll color="white">
-      <v-toolbar-title>Fluxo Ágil</v-toolbar-title>
-      <v-spacer />
-
-      Botões
+    <v-app-bar app absolute flat color="white">
+      <v-container>
+        <v-toolbar-title>Fluxo Ágil</v-toolbar-title>
+        <!-- <v-spacer /> -->
+      </v-container>
     </v-app-bar>
 
     <v-main>
