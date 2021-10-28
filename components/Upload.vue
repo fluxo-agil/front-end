@@ -260,7 +260,7 @@ export default {
       return this.selectedFile ? this.selectedFile.name : "";
     },
     coursesToSpecifyPeriod() {
-      const filteredCo1urses = this.optionalCourses.selected.filter(
+      const filteredCorurses = this.optionalCourses.selected.filter(
         (course) => {
           const alreadyAddedCourse =
             this.coursesWithSpecificPeriod.selected.find(
@@ -275,7 +275,7 @@ export default {
         }
       );
 
-      return filteredCo1urses;
+      return filteredCorurses;
     },
   },
 
@@ -284,6 +284,22 @@ export default {
       if (this.isLoading && !file) {
         this.isLoading = false;
       }
+    },
+    "optionalCourses.selected"(optionalCourses) {
+      this.coursesWithSpecificPeriod.selected.forEach(
+        (courseWithSpecificPeriod, index) => {
+          const hasOptionalCourse = optionalCourses.find(
+            (optionalCourse) =>
+              optionalCourse.id === courseWithSpecificPeriod.course.id
+          );
+
+          if (hasOptionalCourse) {
+            return true;
+          }
+
+          this.removeSpecificPeriodToCourse(index);
+        }
+      );
     },
   },
 
