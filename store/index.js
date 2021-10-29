@@ -3,7 +3,8 @@ export const actions = {
     const bodyFormData = new FormData();
 
     for (const [key, value] of Object.entries(data)) {
-      bodyFormData.append(key, value);
+      const formattedValue = key === "file" ? value : JSON.stringify(value);
+      bodyFormData.append(key, formattedValue);
     }
 
     const response = await this.$axios.post("/process", bodyFormData, {
