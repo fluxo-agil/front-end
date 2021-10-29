@@ -19,7 +19,15 @@
           Como obter seu histórico
         </div>
 
-        <div class="text-body">a</div>
+        <div class="text-body">
+          Para utilizar a plataforma, primeiramente é necessário fazer a emissão
+          de seu histórico pelo siga no menu de ensino. Após fazer a emissão, é
+          preciso submeter seu histórico na plataforma e será identificado todas
+          as disciplinas que você ainda precisa fazer. Em seguida, basta
+          escolher quantos créditos você deseja realizar nos próximos semestre e
+          pronto! O sistema realizará a recomendação de matérias para os
+          próximos semestres.
+        </div>
       </v-col>
 
       <v-col cols="12" md="4">
@@ -27,7 +35,13 @@
           Como é calculado
         </div>
 
-        <div class="text-body">a</div>
+        <div class="text-body">
+          Para fazer o cálculo da recomendação de matrícula, primeiramente é
+          identificado todas as disciplinas obrigatórias que o aluno ainda
+          precisa fazer, em seguida, nosso algoritmo calcula quais disciplinas
+          ele precisa cursar em cada semestre para se formar no menor tempo
+          possível.
+        </div>
       </v-col>
     </v-row>
   </div>
